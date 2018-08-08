@@ -14,6 +14,8 @@ import com.maedanoma.mostcoolrealminesweeper.R;
  * @author mmaeda
  */
 public class CommonDialog extends Dialog {
+    public static final String RESET = "reset";
+    public static final String COMPLETE = "complete";
     private final Button mButton;
     private CommonDialog(@NonNull Context context, @IdRes int titleId) {
         super(context);

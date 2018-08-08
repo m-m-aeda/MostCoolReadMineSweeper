@@ -7,6 +7,7 @@ import com.maedanoma.mostcoolrealminesweeper.boundary.CommonDialog;
 import com.maedanoma.mostcoolrealminesweeper.entity.Box;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -23,17 +24,22 @@ public class BoxManager {
     private final int mColumnSize;
     private final int mRowSize;
     private final Box[][] mBoxes;
-    private CommonDialog mResetDialog;
+    private Map<String, CommonDialog> mDialogs;
+    private int mNonBombBoxCount;
+    private int mDugBoxCount;
 
-    public BoxManager(int columnSize, int rowSize, CommonDialog resetDialog) {
+    public BoxManager(int columnSize, int rowSize, Map<String, CommonDialog> dialogs) {
         mColumnSize = columnSize;
         mRowSize = rowSize;
         mMax_Random_Number = (columnSize * rowSize) / BOMB_RATIO;
         mBoxes = new Box[mColumnSize][mRowSize];
-        mResetDialog = resetDialog;
+        mDialogs = dialogs;
+        mNonBombBoxCount = 0;
+        mDugBoxCount = 0;
     }
 
     public void init(ArrayList<BoxView> items) {
+        mDugBoxCount = 0;
         Random r = new Random();
         // MainSweeperViewとBoxViewの紐付、爆弾の用意
         for (int i = 0; i < mColumnSize; i++) {
@@ -46,10 +52,13 @@ public class BoxManager {
         }
 
         // 爆弾の周りのBoxに数字を設定する。
+        mNonBombBoxCount = 0;
         for (int i = 0; i < mColumnSize; i++) {
             for (int j = 0; j < mRowSize; j++) {
-                // 爆弾がなかったら無視
-                if (!mBoxes[i][j].hasBomb()) continue;
+                if (!mBoxes[i][j].hasBomb()) {
+                    mNonBombBoxCount++;
+                    continue;
+                }
                 Log.i(TAG, "bomb = box[" + i + "][" + j + "]");
                 updateAroundBox(i, j, box -> {
 //                    Log.i(TAG, "target = box[" + box.mColumn + "][" + box.mRow + "]");
@@ -59,8 +68,12 @@ public class BoxManager {
         }
     }
 
+
     public void digAroundBox(int column, int row) {
-        updateAroundBox(column, row, box -> box.onItemClick(false));
+        if (++mDugBoxCount >= mNonBombBoxCount) {
+            mDialogs.get(CommonDialog.COMPLETE).show();
+        }
+//        updateAroundBox(column, row, box -> box.onItemClick(false));
     }
 
     private void updateAroundBox(int column, int row, Task task) {
@@ -106,7 +119,7 @@ public class BoxManager {
     }
 
     public void notifyExplosion() {
-        mResetDialog.show();
+        mDialogs.get(CommonDialog.RESET).show();
     }
 
     public boolean onItemClick(int position, boolean isLongClick) {

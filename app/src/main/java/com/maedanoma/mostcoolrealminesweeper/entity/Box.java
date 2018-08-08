@@ -51,9 +51,9 @@ public class Box {
         isDug = true;
         if (mAroundBombNumber != 0) {
             mBoxView.setNumber(mAroundBombNumber);
-            return;
+        } else {
+            mBoxView.setEmpty();
         }
-        mBoxView.setEmpty();
         mManager.digAroundBox(mColumn, mRow);
     }
 

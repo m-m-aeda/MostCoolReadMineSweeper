@@ -17,7 +17,9 @@ import com.maedanoma.mostcoolrealminesweeper.controller.BoxManager;
 import com.maedanoma.mostcoolrealminesweeper.entity.Box;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author mmaeda
@@ -39,9 +41,11 @@ public class MineSweeperView extends RelativeLayout {
 
         GridView grid = (GridView) root.findViewById(R.id.grid_view);
 
-        CommonDialog commonDialog = new CommonDialog.Builder(mDialogContext, R.string.reset_dialog_title)
-                .button(R.string.reset_game, () -> prepare(grid, rowSize, columnSize)).build();
-        mManager = new BoxManager(rowSize, columnSize, commonDialog);
+        Map<String, CommonDialog> dialogs = new HashMap<>();
+        Runnable task = () -> prepare(grid, rowSize, columnSize);
+        dialogs.put(CommonDialog.RESET, createDialog(R.string.reset_dialog_title, task));
+        dialogs.put(CommonDialog.COMPLETE, createDialog(R.string.complete_dialog_title, task));
+        mManager = new BoxManager(rowSize, columnSize, dialogs);
 
         grid.setNumColumns(rowSize);
         grid.setOnItemClickListener((parent, view, position, id) -> {
@@ -70,6 +74,11 @@ public class MineSweeperView extends RelativeLayout {
         BoxViewAdapter adapter = new BoxViewAdapter(getContext(), R.layout.box, items);
         grid.setAdapter(adapter);
         mManager.init(items);
+    }
+
+    private CommonDialog createDialog(int titleId, Runnable task) {
+        return new CommonDialog.Builder(mDialogContext, titleId)
+                .button(R.string.reset_game, task).build();
     }
 
     private static class BoxViewAdapter extends BaseAdapter {
