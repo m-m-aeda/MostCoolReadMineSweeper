@@ -54,7 +54,7 @@ public class Box {
         } else {
             mBoxView.setEmpty();
         }
-        mManager.digAroundBox(mColumn, mRow);
+        mManager.digAroundBox(mColumn, mRow, mAroundBombNumber > 0);
     }
 
     public void onItemLongClick() {

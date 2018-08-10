@@ -19,7 +19,8 @@ public class BoxManager {
         void apply(Box box);
     }
     public static final String TAG = "BoxMngr";
-    private static final int BOMB_RATIO = 5;
+    // 下げると爆弾減る。
+    private static final int BOMB_RATIO = 6;
     private final int mMax_Random_Number;
     private final int mColumnSize;
     private final int mRowSize;
@@ -60,20 +61,19 @@ public class BoxManager {
                     continue;
                 }
                 Log.i(TAG, "bomb = box[" + i + "][" + j + "]");
-                updateAroundBox(i, j, box -> {
-//                    Log.i(TAG, "target = box[" + box.mColumn + "][" + box.mRow + "]");
-                    box.incrementAroundBombNumber();
-                });
+                updateAroundBox(i, j, box -> box.incrementAroundBombNumber());
             }
         }
     }
 
 
-    public void digAroundBox(int column, int row) {
+    public void digAroundBox(int column, int row, boolean isNumberBox) {
         if (++mDugBoxCount >= mNonBombBoxCount) {
             mDialogs.get(CommonDialog.COMPLETE).show();
         }
-//        updateAroundBox(column, row, box -> box.onItemClick(false));
+
+        if (isNumberBox) return;
+        updateAroundBox(column, row, box -> box.onItemClick(false));
     }
 
     private void updateAroundBox(int column, int row, Task task) {
